@@ -4,8 +4,19 @@ MCast
 
 The simplest multicast file transfer app on earth ! ;)
 
+- transfer files of any size to multiple hosts at a time
+- simple to use (even NetCat is more complex !)
+- single file app, runs on any platform (requires Python)
+
 How to use it
 #############
+
+In short:
+
+:receive:  call ``mcast`` without argument
+:send:  call ``mcast`` with file as argument, or "``-``" for stdin
+
+For examples, continue reading...
 
 On computers you want to send the file to
 -----------------------------------------
@@ -41,3 +52,8 @@ or, if you want to send multiple files using tar
 
     tar cvf - path/to/send | mcast -
 
+
+Developers
+##########
+
+This app is supported and tested only under Linux, but patches for other OS are accepted.
