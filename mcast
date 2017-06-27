@@ -154,4 +154,7 @@ class DatagramEmitter(Datagram):
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        sys.stderr.write('\nInterrupted !\n')
