@@ -10,13 +10,13 @@ Features
 - transfer files of any size to multiple hosts at a time
 - simple to use (even NetCat is more complex !)
 - single file app, runs on any platform (requires Python)
+- file corruption detected automatically
 
 Limitations
 ###########
 
 - computers must be on the same network
 - one file transfer at a time [WIP: fix this] 
-    - file corruption detected automatically
 
 How to use it
 #############
