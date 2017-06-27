@@ -1,16 +1,25 @@
 #!/usr/bin/python
 """ Sends a text or file to any listening host on the LAN
 
-Most code comes from py-multicast
+Started from py-multicast code (available on PyPi)
 """
+
+__version__ = "1.0.1"
+
 import sys
 import socket
+from hashlib import sha256
 
 BUFFER_SZ = 1400  # ~MTU
 ADDR = '224.0.0.100'
 PORT = 9096
 
 MAGIC_EOF = b'#E-O-F#close now'
+MAGIC_START = b'MCAST FILE TRANSFER VERSION'
+
+def dprint(txt):
+    return
+    sys.stderr.write('%s\n'%txt)
 
 
 def stdout_writer(data):
@@ -34,15 +43,18 @@ Without a filename:
         sys.exit(0)
     if len(sys.argv) > 1: # file given, this is the sender
         dg = DatagramEmitter(None, PORT, ADDR, PORT)
+        dg.send_header()
         if sys.argv[1] == '-':
             data = sys.stdin
         else:
             data = open(sys.argv[1], mode='rb')
         dg.send(data)
-        dg.send(MAGIC_EOF)
+        dg.send_footer()
     else: # read data
         dg = Multicast(None, ADDR, PORT, ttl=32)
+        dg.read_header()
         dg.retrieve(stdout_writer)
+        dg.read_footer()
 
 
 class Datagram(object):
@@ -61,11 +73,30 @@ class Datagram(object):
         self.address = address
         self.port = port
 
+        # error detection
+        self.corruption_detector = sha256()
+
         self.bind()
+
+    def get_hash(self):
+        return self.corruption_detector.hexdigest().encode('ascii')
 
     def bind(self):
         " Bind socket "
         self._socket.bind((self.local_address, self.port))
+
+    def read_header(self):
+        data = self.pipeone(None, check_error=False)
+        version = data.strip().split()[-1]
+        if version != __version__.encode('ascii'):
+            sys.stderr.write('WARNING: version mismatch: %s\n!= %s\n'%(version, __version__))
+
+    def read_footer(self):
+        data = self.pipeone(None, check_error=False).split()[1]
+        digest = self.get_hash()
+        if data != digest:
+            sys.stderr.write('Data corruption detected !! %r\n!= %r'%(digest, data))
+            sys.exit(-1)
 
     def retrieve(self, ostream, size=BUFFER_SZ):
         " Receive all data into `ostream` "
@@ -75,9 +106,13 @@ class Datagram(object):
             except EOFError:
                 break
 
-    def pipeone(self, ostream, size=BUFFER_SZ):
+    def pipeone(self, ostream, size=BUFFER_SZ, check_error=True):
         " Pick one datagram only , save to `ostream` "
         data, addr = self._socket.recvfrom(size)
+        if data and check_error:
+            dprint("up")
+            self.corruption_detector.update(data)
+        dprint("READ[%s] %s\n"%(check_error,repr(data)))
         if len(data) == len(MAGIC_EOF) and data == MAGIC_EOF:
             raise EOFError("End of transfer")
 
@@ -86,9 +121,8 @@ class Datagram(object):
                 target = ostream
             else:
                 target = ostream.write
-            return target(data)
-        else:
-            return data
+            data = target(data)
+        return data
 
     def read(self, size=BUFFER_SZ):
         " Get one datagram & return its data "
@@ -141,17 +175,30 @@ class DatagramEmitter(Datagram):
         self._socket.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, ttl)
         self._socket.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_LOOP, self.loop)
 
-    def send(self, data):
+    def send(self, data, check_error=True):
+        dprint("WRITE [%s] %r"%(check_error,data))
         if hasattr(data, 'read'):
             while True:
                 d = data.read(BUFFER_SZ)
                 if not d:
                     break
+                if check_error:
+                    dprint('up!')
+                    self.corruption_detector.update(d)
                 if self._socket.sendto(d, (self.target_address, self.target_port)) != len(d):
                     sys.stderr.write("Packet loss ??\n")
         else:
+            if check_error:
+                dprint('up!')
+                self.corruption_detector.update(data)
             self._socket.sendto(data, (self.target_address, self.target_port))
 
+    def send_header(self):
+        self.send(MAGIC_START + b' ' + __version__.encode('ascii'), check_error=False)
+
+    def send_footer(self):
+        self.send(MAGIC_EOF, check_error=True)
+        self.send(b'HASH: %b'%self.get_hash(), check_error=False)
 
 if __name__ == '__main__':
     try:
