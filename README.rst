@@ -4,9 +4,18 @@ MCast
 
 The simplest multicast file transfer app on earth ! ;)
 
+Features
+########
+
 - transfer files of any size to multiple hosts at a time
 - simple to use (even NetCat is more complex !)
 - single file app, runs on any platform (requires Python)
+
+Limitations
+###########
+
+- computers must be on the same network
+- one file transfer at a time [WIP: change this] 
 
 How to use it
 #############
