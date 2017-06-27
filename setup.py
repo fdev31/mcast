@@ -5,12 +5,12 @@ from setuptools import setup
 
 setup(
     name = "mcast",
-    description = 'Python Multicast file transfer CLI tool',
-    version = '1.2.0',
+    description = 'Python Multicast file transfer CLI tool - also comes with nc/netcat implementation',
+    version = '1.3.0',
     url = 'github.com/fdev31/mcast',
     author = 'Fabien Devaux',
     author_email = 'fdev31@gmail.com',
-    scripts = ['mcast'],
+    scripts = ['mcast', 'nc.py'],
     license = "BSD",
     classifiers = [
         'Development Status :: 4 - Beta',

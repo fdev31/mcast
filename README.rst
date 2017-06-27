@@ -3,6 +3,7 @@ MCast
 #####
 
 The simplest multicast file transfer app on earth ! ;)
++ pure python netcat (as fallback ?)
 
 Pull data:
 
@@ -21,14 +22,15 @@ Features
 
 - transfer files of any size to multiple hosts at a time
 - simple to use (even NetCat is more complex !)
-- single file app, runs on any platform (requires Python)
+- single file app, runs on any platform (pure Python)
 - file corruption detected automatically
 
 Limitations
 ###########
 
 - computers must be on the same network
-- one file transfer at a time [WIP: fix this] 
+    - ``nc.py`` tool featured for *traditional* tcp connections
+- one file transfer at a time [TODO: fix this] 
 
 How to use it
 #############
