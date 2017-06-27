@@ -21,12 +21,15 @@ Limitations
 How to use it
 #############
 
-In short:
+receive
+    call ``mcast`` without argument
+send
+    call ``mcast`` with file as argument, or "``-``" for stdin
 
-:receive:  call ``mcast`` without argument
-:send:  call ``mcast`` with file as argument, or "``-``" for stdin
+There are two steps:
 
-For examples, continue reading...
+#. start program on each computer wanting to receive the file or content
+#. start the program with the file as parameter on any computer of the network
 
 On computers you want to send the file to
 -----------------------------------------
