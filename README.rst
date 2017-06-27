@@ -15,7 +15,8 @@ Limitations
 ###########
 
 - computers must be on the same network
-- one file transfer at a time [WIP: change this] 
+- one file transfer at a time [WIP: fix this] 
+    - file corruption detected automatically
 
 How to use it
 #############
