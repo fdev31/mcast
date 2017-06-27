@@ -4,6 +4,18 @@ MCast
 
 The simplest multicast file transfer app on earth ! ;)
 
+Pull data:
+
+    .. code-block:: console
+
+        mcast
+
+Push data:
+
+    .. code-block:: console
+
+        mcast file.ext
+
 Features
 ########
 
