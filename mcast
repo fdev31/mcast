@@ -8,6 +8,7 @@ __version__ = "1.3.0"
 
 import sys
 import socket
+import time
 from hashlib import sha256
 
 BUFFER_SZ = 65000
@@ -47,11 +48,14 @@ Without a filename:
     if len(sys.argv) > 1: # file given, this is the sender
         dg = DatagramEmitter(None, PORT, ADDR, PORT)
         dg.send_header()
+        t0 = time.time()
         if sys.argv[1] == '-':
             data = sys.stdin
         else:
             data = open(sys.argv[1], mode='rb')
-        dg.send(data)
+        kb = dg.send(data)/1024
+        duration = time.time() - t0
+        sys.stderr.write("%.0f kbps (%.2f Mbps).\n" % (kb/duration, kb/duration/1024))
         dg.send_footer()
     else: # read data
         dg = Multicast(None, ADDR, PORT, ttl=32)
@@ -180,9 +184,11 @@ class DatagramEmitter(Datagram):
 
     def send(self, data, check_error=True):
         dprint("WRITE [%s] %r"%(check_error,data))
+        written = 0
         if hasattr(data, 'read'):
             while True:
                 d = data.read(BUFFER_SZ)
+                written += len(d)
                 if not d:
                     break
                 if check_error:
@@ -195,6 +201,8 @@ class DatagramEmitter(Datagram):
                 dprint('up!')
                 self.corruption_detector.update(data)
             self._socket.sendto(data, (self.target_address, self.target_port))
+            written = len(data)
+        return written
 
     def send_header(self):
         self.send(MAGIC_START + b' ' + __version__.encode('ascii'), check_error=False)
