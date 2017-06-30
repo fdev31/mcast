@@ -10,7 +10,7 @@ import sys
 import socket
 from hashlib import sha256
 
-BUFFER_SZ = 1400  # ~MTU
+BUFFER_SZ = 65000
 ADDR = '224.0.0.100'
 PORT = 9096
 
