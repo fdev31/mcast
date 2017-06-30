@@ -31,6 +31,9 @@ def stdout_writer(data):
 
 def main():
     " Main entry point"
+    if '-v' in sys.argv or '--version' in sys.argv:
+        print("Version %s"%__version__)
+        sys.exit(0)
     if '-h' in sys.argv or '--help' in sys.argv:
         print("""Syntax: %s [filename]
 
