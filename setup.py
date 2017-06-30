@@ -3,10 +3,12 @@
 import codecs
 from setuptools import setup
 
+version = [line.split('=')[1].strip() for line in open('mcast').readlines() if line.startswith('__version__')][0].strip('"')
+
 setup(
     name = "mcast",
     description = 'Python Multicast file transfer CLI tool - also comes with nc/netcat implementation',
-    version = '1.3.0',
+    version = version,
     url = 'https://github.com/fdev31/mcast',
     author = 'Fabien Devaux',
     author_email = 'fdev31@gmail.com',
